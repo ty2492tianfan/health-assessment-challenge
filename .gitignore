@@ -32,6 +32,19 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# local leftovers
+.npm-cache/
+cookies.txt
+/prisma/*.db
+/prisma/*.db-journal
+
+# AI tooling / agent skill copies
+.cursor/
+.claude/
+.agents/
+.devin/
 
 # vercel
 .vercel

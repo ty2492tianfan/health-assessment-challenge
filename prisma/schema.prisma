@@ -1,0 +1,98 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  ACTIVE
+}
+
+enum MainGoal {
+  LOSE_WEIGHT
+  MAINTAIN_AND_GET_FIT
+}
+
+enum Gender {
+  FEMALE
+  MALE
+}
+
+enum ExerciseFrequency {
+  ALMOST_EVERY_DAY
+  SEVERAL_TIMES_A_WEEK
+  SEVERAL_TIMES_A_MONTH
+  NEVER
+}
+
+model User {
+  id                 String             @id @default(cuid())
+  sessionId          String             @unique @map("session_id")
+  subscriptionStatus SubscriptionStatus @default(INACTIVE) @map("subscription_status")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  assessmentDraft  AssessmentDraft?
+  assessmentResult AssessmentResult?
+  paymentEvents    PaymentEvent[]
+
+  @@map("users")
+}
+
+model AssessmentDraft {
+  id                String             @id @default(cuid())
+  userId            String             @unique @map("user_id")
+  mainGoal          MainGoal?          @map("main_goal")
+  gender            Gender?
+  age               Int?
+  heightCm          Int?               @map("height_cm")
+  weightKg          Decimal?           @db.Decimal(5, 2) @map("weight_kg")
+  targetWeightKg    Decimal?           @db.Decimal(5, 2) @map("target_weight_kg")
+  exerciseFrequency ExerciseFrequency? @map("exercise_frequency")
+  currentStep       String             @default("gender") @map("current_step")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("assessment_drafts")
+}
+
+model AssessmentResult {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  bmi                Decimal  @db.Decimal(5, 2)
+  bmiCategory        String   @map("bmi_category")
+  dailyCalorieTarget Int?     @map("daily_calorie_target")
+  targetDate         DateTime? @map("target_date")
+  projectedCurve     Json?    @map("projected_curve")
+  summaryText        String?  @map("summary_text")
+  generatedAt        DateTime @default(now()) @map("generated_at")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("assessment_results")
+}
+
+model PaymentEvent {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  provider    String   @default("mock")
+  plan        String?
+  externalRef String?  @map("external_ref")
+  status      String
+  payload     Json?
+  processedAt DateTime? @map("processed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_events")
+}
