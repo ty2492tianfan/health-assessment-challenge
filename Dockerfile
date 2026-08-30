@@ -42,4 +42,4 @@ COPY --from=builder /app/tsconfig.json ./
 
 EXPOSE 3000
 
-CMD ["npx", "next", "start", "-H", "0.0.0.0", "-p", "3000"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && npx next start -H 0.0.0.0 -p 3000"]
