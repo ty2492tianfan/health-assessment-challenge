@@ -1,0 +1,16 @@
+.git
+.github
+.next
+.npm-cache
+.vercel
+.cursor
+.claude
+.agents
+.devin
+node_modules
+coverage
+cookies.txt
+*.md
+.env
+.env.*
+!.env.example
